@@ -1,0 +1,2847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MARS // FRONTIER BASE</title>
+
+<style>
+*{box-sizing:border-box}
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#160806;
+    font-family:Arial,Helvetica,sans-serif;
+}
+canvas{display:block}
+
+#ui{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    color:white;
+}
+
+.panel{
+    background:
+    linear-gradient(135deg,
+    rgba(18,13,12,.90),
+    rgba(8,7,7,.68));
+    border:1px solid rgba(255,173,135,.30);
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.4),
+        inset 0 0 30px rgba(255,100,50,.04);
+    backdrop-filter:blur(8px);
+    border-radius:12px;
+}
+
+#brand{
+    position:absolute;
+    top:18px;
+    left:18px;
+    width:300px;
+    padding:15px;
+}
+
+.logo{
+    color:#ffae88;
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:5px;
+}
+
+.small{
+    color:#999;
+    font-size:9px;
+    letter-spacing:2px;
+}
+
+.nominal{
+    margin-top:12px;
+    color:#83ffad;
+    font-size:10px;
+}
+
+#mission{
+    position:absolute;
+    top:18px;
+    right:18px;
+    width:335px;
+    padding:15px;
+}
+
+.orange{
+    color:#ff9c6d;
+    letter-spacing:2px;
+    font-size:10px;
+}
+
+#mission h2{
+    margin:7px 0;
+    font-size:18px;
+}
+
+#mission p{
+    color:#bdb1ac;
+    font-size:11px;
+    line-height:1.5;
+}
+
+.stat{
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0;
+    font-size:11px;
+    color:#aaa;
+}
+
+.stat b{color:white}
+
+.bar{
+    height:5px;
+    background:#35201b;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.bar div{
+    height:100%;
+    background:linear-gradient(90deg,#d94b27,#ffb477);
+    box-shadow:0 0 10px #ff6030;
+    transition:.3s;
+}
+
+#inventory{
+    position:absolute;
+    bottom:18px;
+    left:18px;
+    width:285px;
+    padding:15px;
+}
+
+.invrow{
+    display:flex;
+    justify-content:space-between;
+    margin:7px 0;
+    font-size:11px;
+}
+
+.invrow span{color:#aaa}
+
+.invrow b{
+    color:#eee;
+}
+
+#build{
+    position:absolute;
+    bottom:18px;
+    right:18px;
+    width:325px;
+    padding:14px;
+}
+
+.buildTitle{
+    color:#ff9d70;
+    font-size:10px;
+    letter-spacing:2px;
+    margin-bottom:10px;
+}
+
+.buildItem{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 6px;
+    border-top:1px solid rgba(255,255,255,.06);
+    font-size:10px;
+    color:#bbb;
+}
+
+.buildItem b{
+    color:#eee;
+}
+
+#center{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+}
+
+#cross{
+    font-size:24px;
+    color:#ffd0bb;
+    text-shadow:0 0 15px #ff5427;
+}
+
+#target{
+    margin-top:8px;
+    color:#ffc3a9;
+    font-size:10px;
+    letter-spacing:2px;
+}
+
+#hint{
+    position:absolute;
+    bottom:145px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:10px 18px;
+    font-size:10px;
+    color:#ddd;
+}
+
+#toast{
+    position:absolute;
+    top:34%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+    opacity:0;
+    transition:.3s;
+    text-shadow:0 0 20px #ff5a27;
+}
+
+#toast b{
+    color:#ffd0bd;
+    font-size:21px;
+}
+
+#toast span{
+    color:#cdbdb6;
+    font-size:11px;
+}
+
+#buildMode{
+    display:none;
+    position:absolute;
+    left:50%;
+    top:105px;
+    transform:translateX(-50%);
+    padding:10px 20px;
+    color:#8dffb0;
+    border:1px solid rgba(120,255,160,.4);
+    background:rgba(10,30,17,.75);
+    border-radius:8px;
+    font-size:11px;
+    letter-spacing:2px;
+}
+
+#start{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:
+    radial-gradient(circle at 50% 50%,#713020 0%,#260e09 32%,#070303 75%);
+}
+
+.startBox{
+    width:min(820px,92%);
+    padding:45px;
+}
+
+.startTop{
+    color:#ff8d62;
+    letter-spacing:6px;
+    font-size:10px;
+}
+
+.startBox h1{
+    margin:15px 0 0;
+    color:#ffae87;
+    font-size:clamp(50px,9vw,100px);
+    letter-spacing:12px;
+    text-shadow:0 0 35px #9d351e;
+}
+
+.startBox h2{
+    margin-top:0;
+    color:#ddd;
+    font-weight:normal;
+    letter-spacing:5px;
+    font-size:14px;
+}
+
+.startBox p{
+    color:#c7b8b2;
+    line-height:1.7;
+    font-size:12px;
+}
+
+#launch{
+    margin-top:20px;
+    padding:15px 38px;
+    border:1px solid #ff986d;
+    border-radius:6px;
+    background:linear-gradient(135deg,#c64d29,#762415);
+    color:white;
+    letter-spacing:3px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#launch:hover{
+    background:linear-gradient(135deg,#ed6841,#9b321b);
+}
+
+#buildMenu{
+    display:none;
+    position:fixed;
+    z-index:60;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:430px;
+    padding:22px;
+}
+
+.menuTitle{
+    color:#ff9d70;
+    letter-spacing:3px;
+    font-size:12px;
+    margin-bottom:15px;
+}
+
+.menuButton{
+    width:100%;
+    text-align:left;
+    margin:6px 0;
+    padding:12px;
+    border:1px solid rgba(255,180,140,.2);
+    background:rgba(255,255,255,.04);
+    color:white;
+    border-radius:7px;
+    cursor:pointer;
+    pointer-events:auto;
+}
+
+.menuButton:hover{
+    background:rgba(255,100,50,.15);
+}
+
+.menuButton span{
+    color:#999;
+    font-size:10px;
+    float:right;
+}
+
+#complete{
+    display:none;
+    position:fixed;
+    z-index:90;
+    inset:0;
+    background:rgba(5,3,3,.92);
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+
+#complete h1{
+    color:#ffae87;
+    font-size:52px;
+    letter-spacing:6px;
+}
+
+#complete button{
+    padding:13px 25px;
+    border:0;
+    border-radius:5px;
+    background:#bd4628;
+    color:white;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="start">
+<div class="startBox">
+
+<div class="startTop">MARS COLONIZATION PROGRAM // PHASE I</div>
+
+<h1>MARS</h1>
+
+<h2>FRONTIER BASE</h2>
+
+<p>
+Humanity has established its first autonomous exploration zone.
+Your rover must locate useful geological resources, collect
+samples and construct a functioning scientific laboratory.
+</p>
+
+<p>
+<strong>EXPLORE → MINE → BUILD → RESEARCH → EXPAND</strong>
+</p>
+
+<button id="launch">BEGIN EXPEDITION</button>
+
+<p>
+WASD / ARROWS — DRIVE &nbsp; • &nbsp;
+MOUSE — LOOK &nbsp; • &nbsp;
+E — MINE / INTERACT<br>
+B — BUILD MODE &nbsp; • &nbsp;
+1–5 — BUILD TYPES &nbsp; • &nbsp;
+LEFT CLICK — PLACE
+</p>
+
+</div>
+</div>
+
+
+<div id="ui">
+
+<div id="brand" class="panel">
+<div class="logo">ARES // VII</div>
+<div class="small">MARS FRONTIER AUTONOMOUS ROVER</div>
+<div class="nominal">● ROVER SYSTEMS NOMINAL</div>
+</div>
+
+
+<div id="mission" class="panel">
+
+<div class="orange">CURRENT OPERATION</div>
+
+<h2>ESTABLISH RESEARCH OUTPOST</h2>
+
+<p>
+Collect resources and construct a laboratory capable
+of processing Martian samples.
+</p>
+
+<div class="stat">
+<span>MINERAL COLLECTION</span>
+<b id="mineralGoal">0 / 20</b>
+</div>
+
+<div class="bar">
+<div id="mineralBar"></div>
+</div>
+
+<div class="stat">
+<span>LABORATORIES</span>
+<b id="labGoal">0 / 1</b>
+</div>
+
+<div class="bar">
+<div id="labBar"></div>
+</div>
+
+<div class="stat">
+<span>SCIENCE</span>
+<b id="science">0 XP</b>
+</div>
+
+<div class="stat">
+<span>BASE POWER</span>
+<b id="power">0 kW</b>
+</div>
+
+</div>
+
+
+<div id="center">
+<div id="cross">+</div>
+<div id="target">EXPLORATION MODE</div>
+</div>
+
+
+<div id="hint" class="panel">
+WASD DRIVE &nbsp; • &nbsp; E INTERACT &nbsp; • &nbsp; B BUILD
+</div>
+
+
+<div id="inventory" class="panel">
+
+<div class="orange">ROVER CARGO</div>
+
+<div class="invrow">
+<span>IRON</span>
+<b id="iron">0 kg</b>
+</div>
+
+<div class="invrow">
+<span>BASALT</span>
+<b id="basalt">0 kg</b>
+</div>
+
+<div class="invrow">
+<span>ICE</span>
+<b id="ice">0 kg</b>
+</div>
+
+<div class="invrow">
+<span>RARE MINERALS</span>
+<b id="rare">0 kg</b>
+</div>
+
+<div class="invrow">
+<span>ROCK SAMPLES</span>
+<b id="samples">0</b>
+</div>
+
+</div>
+
+
+<div id="build" class="panel">
+
+<div class="buildTitle">
+CONSTRUCTION DATABASE
+</div>
+
+<div class="buildItem">
+<span>1 — LABORATORY</span>
+<b>20 IRON / 10 RARE</b>
+</div>
+
+<div class="buildItem">
+<span>2 — SOLAR ARRAY</span>
+<b>8 IRON / 3 RARE</b>
+</div>
+
+<div class="buildItem">
+<span>3 — STORAGE</span>
+<b>10 IRON / 5 BASALT</b>
+</div>
+
+<div class="buildItem">
+<span>4 — COMM TOWER</span>
+<b>12 IRON / 8 RARE</b>
+</div>
+
+<div class="buildItem">
+<span>5 — RESEARCH MODULE</span>
+<b>15 IRON / 10 RARE</b>
+</div>
+
+</div>
+
+
+<div id="buildMode">
+BUILD MODE — SELECT 1–5 — LEFT CLICK TO PLACE — B TO EXIT
+</div>
+
+
+<div id="toast">
+<b></b><br>
+<span></span>
+</div>
+
+</div>
+
+
+<div id="buildMenu" class="panel">
+
+<div class="menuTitle">
+MARS CONSTRUCTION SYSTEM
+</div>
+
+<div class="menuButton" data-type="lab">
+LABORATORY
+<span>20 IRON + 10 RARE</span>
+</div>
+
+<div class="menuButton" data-type="solar">
+SOLAR ARRAY
+<span>8 IRON + 3 RARE</span>
+</div>
+
+<div class="menuButton" data-type="storage">
+STORAGE MODULE
+<span>10 IRON + 5 BASALT</span>
+</div>
+
+<div class="menuButton" data-type="tower">
+COMMUNICATION TOWER
+<span>12 IRON + 8 RARE</span>
+</div>
+
+<div class="menuButton" data-type="research">
+RESEARCH MODULE
+<span>15 IRON + 10 RARE</span>
+</div>
+
+</div>
+
+
+<div id="complete">
+
+<div>
+
+<div class="orange">
+MARS FRONTIER // PHASE I COMPLETE
+</div>
+
+<h1>OUTPOST ESTABLISHED</h1>
+
+<p>
+Your first autonomous Martian research base is operational.
+</p>
+
+<p id="final"></p>
+
+<button onclick="location.reload()">
+CONTINUE EXPEDITION
+</button>
+
+</div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+
+/* =========================================================
+   SCENE
+========================================================= */
+
+const scene = new THREE.Scene();
+
+scene.background =
+new THREE.Color(0x9c4937);
+
+scene.fog =
+new THREE.FogExp2(
+0x9c4937,
+0.0026
+);
+
+
+const camera =
+new THREE.PerspectiveCamera(
+67,
+innerWidth/innerHeight,
+.1,
+1000
+);
+
+
+const renderer =
+new THREE.WebGLRenderer({
+antialias:true
+});
+
+renderer.setSize(
+innerWidth,
+innerHeight
+);
+
+renderer.setPixelRatio(
+Math.min(devicePixelRatio,2)
+);
+
+renderer.shadowMap.enabled=true;
+
+renderer.shadowMap.type=
+THREE.PCFSoftShadowMap;
+
+renderer.toneMapping=
+THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure=1.25;
+
+document.body.prepend(
+renderer.domElement
+);
+
+
+/* =========================================================
+   LIGHTING
+========================================================= */
+
+const hemi =
+new THREE.HemisphereLight(
+0xffd5be,
+0x30100a,
+2.2
+);
+
+scene.add(hemi);
+
+
+const sun =
+new THREE.DirectionalLight(
+0xffc5a5,
+4.5
+);
+
+sun.position.set(
+-120,
+150,
+-100
+);
+
+sun.castShadow=true;
+
+sun.shadow.mapSize.width=4096;
+sun.shadow.mapSize.height=4096;
+
+sun.shadow.camera.left=-180;
+sun.shadow.camera.right=180;
+sun.shadow.camera.top=180;
+sun.shadow.camera.bottom=-180;
+
+scene.add(sun);
+
+
+/* =========================================================
+   MATERIAL HELPER
+========================================================= */
+
+function material(
+color,
+rough=.8,
+metal=0
+){
+return new THREE.MeshStandardMaterial({
+color,
+roughness:rough,
+metalness:metal
+});
+}
+
+
+/* =========================================================
+   TERRAIN
+========================================================= */
+
+function heightAt(x,z){
+
+return (
+Math.sin(x*.035)*3+
+Math.cos(z*.045)*2.2+
+Math.sin((x+z)*.018)*4+
+Math.sin(x*.12+z*.07)*.6+
+Math.cos(x*.2-z*.13)*.25
+);
+
+}
+
+
+const terrainGeometry =
+new THREE.PlaneGeometry(
+800,
+800,
+200,
+200
+);
+
+terrainGeometry.rotateX(-Math.PI/2);
+
+const pos =
+terrainGeometry.attributes.position;
+
+for(let i=0;i<pos.count;i++){
+
+const x=pos.getX(i);
+const z=pos.getZ(i);
+
+pos.setY(
+i,
+heightAt(x,z)
+);
+
+}
+
+terrainGeometry.computeVertexNormals();
+
+
+const terrain =
+new THREE.Mesh(
+terrainGeometry,
+material(0x91412f,1,0)
+);
+
+terrain.receiveShadow=true;
+
+scene.add(terrain);
+
+
+/* =========================================================
+   ROCKS
+========================================================= */
+
+const rockMats=[
+material(0x603027),
+material(0x71372c),
+material(0x814437),
+material(0x512a25),
+material(0x92513f)
+];
+
+
+for(let i=0;i<1100;i++){
+
+const x=
+Math.random()*720-360;
+
+const z=
+Math.random()*720-360;
+
+if(Math.hypot(x,z)<18)
+continue;
+
+const s=
+.06+
+Math.random()*.55;
+
+const rock =
+new THREE.Mesh(
+new THREE.IcosahedronGeometry(
+1,
+Math.random()>.82?1:0
+),
+rockMats[
+Math.floor(
+Math.random()*rockMats.length
+)
+]);
+
+rock.position.set(
+x,
+heightAt(x,z)+s*.25,
+z
+);
+
+rock.scale.set(
+s*(.7+Math.random()),
+s*(.35+Math.random()*.7),
+s*(.7+Math.random())
+);
+
+rock.rotation.set(
+Math.random()*3,
+Math.random()*6,
+Math.random()*3
+);
+
+rock.castShadow=true;
+
+scene.add(rock);
+
+}
+
+
+/* =========================================================
+   CRATERS
+========================================================= */
+
+function crater(x,z,r){
+
+const outer =
+new THREE.Mesh(
+new THREE.RingGeometry(
+r*.35,
+r,
+40
+),
+material(0x713126,1,0)
+);
+
+outer.rotation.x=-Math.PI/2;
+
+outer.position.set(
+x,
+heightAt(x,z)+.08,
+z
+);
+
+scene.add(outer);
+
+
+const inner =
+new THREE.Mesh(
+new THREE.CircleGeometry(
+r*.38,
+40
+),
+material(0x552722,1,0)
+);
+
+inner.rotation.x=-Math.PI/2;
+
+inner.position.set(
+x,
+heightAt(x,z)+.06,
+z
+);
+
+scene.add(inner);
+
+}
+
+crater(-65,-70,24);
+crater(75,-90,31);
+crater(105,55,19);
+crater(-120,95,36);
+crater(30,115,20);
+
+
+/* =========================================================
+   DISTANT MOUNTAINS
+========================================================= */
+
+for(let i=0;i<45;i++){
+
+const a=
+i/45*Math.PI*2;
+
+const d=
+190+Math.random()*100;
+
+const x=
+Math.cos(a)*d;
+
+const z=
+Math.sin(a)*d;
+
+const h=
+18+Math.random()*50;
+
+const mountain =
+new THREE.Mesh(
+new THREE.ConeGeometry(
+15+Math.random()*25,
+h,
+7
+),
+material(
+0x5c2c25+
+Math.floor(Math.random()*5)*0x030000
+)
+);
+
+mountain.position.set(
+x,
+heightAt(x,z)+h/2,
+z
+);
+
+mountain.rotation.y=
+Math.random()*6;
+
+mountain.castShadow=true;
+
+scene.add(mountain);
+
+}
+
+
+/* =========================================================
+   ATMOSPHERIC DUST
+========================================================= */
+
+const dustGeometry =
+new THREE.BufferGeometry();
+
+const dustCount=1800;
+
+const dustPositions =
+new Float32Array(
+dustCount*3
+);
+
+for(let i=0;i<dustCount;i++){
+
+dustPositions[i*3]=
+Math.random()*700-350;
+
+dustPositions[i*3+1]=
+Math.random()*80+2;
+
+dustPositions[i*3+2]=
+Math.random()*700-350;
+
+}
+
+dustGeometry.setAttribute(
+"position",
+new THREE.BufferAttribute(
+dustPositions,
+3
+)
+);
+
+const dust =
+new THREE.Points(
+dustGeometry,
+new THREE.PointsMaterial({
+color:0xe0a18c,
+size:.09,
+transparent:true,
+opacity:.30
+})
+);
+
+scene.add(dust);
+
+
+/* =========================================================
+   SKY
+========================================================= */
+
+const sky =
+new THREE.Mesh(
+new THREE.SphereGeometry(
+500,
+32,
+16
+),
+new THREE.MeshBasicMaterial({
+color:0xa94d3a,
+side:THREE.BackSide
+})
+);
+
+scene.add(sky);
+
+
+/* =========================================================
+   ROVER
+========================================================= */
+
+const rover =
+new THREE.Group();
+
+scene.add(rover);
+
+
+const roverWhite=
+material(0xc9c1ad,.5,.3);
+
+const roverDark=
+material(0x202528,.55,.4);
+
+const roverMetal=
+material(0x89765b,.35,.7);
+
+const roverGold=
+material(0xb18b50,.3,.75);
+
+const roverGlass=
+material(0x173b4b,.18,.7);
+
+
+function cube(
+parent,
+w,h,d,
+mat,
+x,y,z
+){
+
+const m=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+w,h,d
+),
+mat
+);
+
+m.position.set(x,y,z);
+
+m.castShadow=true;
+m.receiveShadow=true;
+
+parent.add(m);
+
+return m;
+
+}
+
+
+/* Main body */
+
+cube(
+rover,
+3.2,.58,2.3,
+roverWhite,
+0,1.65,0
+);
+
+cube(
+rover,
+2.65,.35,2,
+roverDark,
+0,1.35,0
+);
+
+cube(
+rover,
+1.55,.72,1.3,
+roverWhite,
+0,2.12,-.1
+);
+
+cube(
+rover,
+1,.4,.6,
+roverMetal,
+0,1.98,-1
+);
+
+
+/* Camera mast */
+
+cube(
+rover,
+.15,1.2,.15,
+roverDark,
+0,3.15,-.72
+);
+
+cube(
+rover,
+.75,.42,.45,
+roverWhite,
+0,3.78,-.72
+);
+
+
+for(let i=-1;i<=1;i++){
+
+const lens =
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+.11,.11,.08,20
+),
+roverGlass
+);
+
+lens.rotation.x=
+Math.PI/2;
+
+lens.position.set(
+i*.2,
+3.78,
+-1
+);
+
+rover.add(lens);
+
+}
+
+
+/* Antenna */
+
+const antenna =
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+.035,.045,1.4,10
+),
+roverGold
+);
+
+antenna.position.set(
+.9,3.15,.2
+);
+
+antenna.rotation.z=.2;
+
+rover.add(antenna);
+
+
+/* Wheels */
+
+const wheels=[];
+
+for(const side of [-1,1]){
+
+for(const z of [-.8,0,.8]){
+
+const wg=
+new THREE.Group();
+
+wg.position.set(
+side*1.55,
+.92,
+z
+);
+
+rover.add(wg);
+
+
+const wheel=
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+.53,.53,.35,24
+),
+roverDark
+);
+
+wheel.rotation.z=
+Math.PI/2;
+
+wheel.castShadow=true;
+
+wg.add(wheel);
+
+
+const hub=
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+.24,.24,.38,20
+),
+roverMetal
+);
+
+hub.rotation.z=
+Math.PI/2;
+
+wg.add(hub);
+
+
+for(let t=0;t<16;t++){
+
+const a=
+t*Math.PI*2/16;
+
+const tread=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+.39,.09,.13
+),
+roverWhite
+);
+
+tread.position.set(
+Math.cos(a)*.49,
+Math.sin(a)*.49,
+0
+);
+
+tread.rotation.z=a;
+
+wg.add(tread);
+
+}
+
+wheels.push(wg);
+
+}
+
+}
+
+
+/* Solar wings */
+
+const solarMaterial=
+material(0x173c57,.28,.55);
+
+for(const side of [-1,1]){
+
+cube(
+rover,
+1.1,.08,.12,
+roverMetal,
+side*1.95,
+2.05,0
+);
+
+const panel=
+cube(
+rover,
+1.35,.09,1.7,
+solarMaterial,
+side*2.65,
+2.05,0
+);
+
+for(let i=0;i<5;i++){
+
+cube(
+rover,
+.018,.012,1.62,
+roverMetal,
+side*(2.08+i*.27),
+2.11,0
+);
+
+}
+
+}
+
+
+/* =========================================================
+   RESOURCE SYSTEM
+========================================================= */
+
+const resources={
+iron:0,
+basalt:0,
+ice:0,
+rare:0,
+samples:0
+};
+
+
+const resourceNodes=[];
+
+
+function createResourceNode(
+type,
+x,z,
+amount
+){
+
+const colors={
+iron:0x9a9a91,
+basalt:0x443d3b,
+ice:0x79c9e8,
+rare:0xd39cff
+};
+
+const names={
+iron:"IRON DEPOSIT",
+basalt:"BASALT FORMATION",
+ice:"SUBSURFACE ICE",
+rare:"RARE MINERAL DEPOSIT"
+};
+
+
+const group=
+new THREE.Group();
+
+group.position.set(
+x,
+heightAt(x,z),
+z
+);
+
+scene.add(group);
+
+
+/* deposit rock */
+
+const deposit=
+new THREE.Mesh(
+new THREE.DodecahedronGeometry(
+1.4+Math.random()*1.2,
+1
+),
+material(
+colors[type],
+.62,
+type==="rare"?.55:.15
+)
+);
+
+deposit.scale.y=.7;
+
+deposit.castShadow=true;
+
+group.add(deposit);
+
+
+/* crystals for rare */
+
+if(type==="rare"||type==="ice"){
+
+for(let i=0;i<5;i++){
+
+const crystal=
+new THREE.Mesh(
+new THREE.OctahedronGeometry(
+.25+Math.random()*.2
+),
+material(
+colors[type],
+.3,
+.5
+)
+);
+
+crystal.position.set(
+(Math.random()-.5)*1.7,
+.5+Math.random()*.8,
+(Math.random()-.5)*1.7
+);
+
+crystal.rotation.set(
+Math.random(),
+Math.random(),
+Math.random()
+);
+
+group.add(crystal);
+
+}
+
+}
+
+
+/* glowing beacon */
+
+const beacon=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+.12,
+10,
+8
+),
+new THREE.MeshBasicMaterial({
+color:colors[type]
+})
+);
+
+beacon.position.y=2.4;
+
+group.add(beacon);
+
+
+resourceNodes.push({
+group,
+type,
+amount,
+name:names[type],
+active:true
+});
+
+}
+
+
+/* Resource distribution */
+
+const types=[
+"iron","iron","iron",
+"basalt","basalt","basalt",
+"ice","ice",
+"rare"
+];
+
+for(let i=0;i<55;i++){
+
+const type=
+types[
+Math.floor(
+Math.random()*types.length
+)
+];
+
+const x=
+Math.random()*500-250;
+
+const z=
+Math.random()*500-250;
+
+if(Math.hypot(x,z)<25)
+continue;
+
+createResourceNode(
+type,
+x,z,
+5+Math.floor(Math.random()*10)
+);
+
+}
+
+
+/* =========================================================
+   BASE
+========================================================= */
+
+const buildings=[];
+
+let buildMode=false;
+let selectedBuild=null;
+let ghost=null;
+
+
+/* Costs */
+
+const costs={
+lab:{iron:20,rare:10},
+solar:{iron:8,rare:3},
+storage:{iron:10,basalt:5},
+tower:{iron:12,rare:8},
+research:{iron:15,rare:10}
+};
+
+
+/* =========================================================
+   BUILDING MATERIALS
+========================================================= */
+
+const buildingWhite=
+material(0xb8b09e,.55,.25);
+
+const buildingDark=
+material(0x292e30,.5,.4);
+
+const buildingGlass=
+material(0x315a63,.18,.55);
+
+const buildingSolar=
+material(0x173f5b,.25,.6);
+
+
+/* =========================================================
+   BUILDING CREATION
+========================================================= */
+
+function makeBuilding(
+type,
+position
+){
+
+const g=
+new THREE.Group();
+
+g.position.copy(position);
+
+scene.add(g);
+
+if(type==="lab"){
+
+/* main laboratory */
+
+const body=
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+4.2,4.2,3.8,24
+),
+buildingWhite
+);
+
+body.position.y=2;
+
+body.castShadow=true;
+
+g.add(body);
+
+
+/* dome */
+
+const dome=
+new THREE.Mesh(
+new THREE.SphereGeometry(
+4.2,32,16,0,Math.PI*2,0,Math.PI/2
+),
+buildingGlass
+);
+
+dome.position.y=4;
+
+g.add(dome);
+
+
+/* entrance */
+
+const entrance=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+1.5,2.3,.35
+),
+buildingDark
+);
+
+entrance.position.set(
+0,1.2,-4.1
+);
+
+g.add(entrance);
+
+
+/* glowing windows */
+
+for(let i=0;i<8;i++){
+
+const a=
+i*Math.PI/4;
+
+const w=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+.7,.55,.12
+),
+buildingGlass
+);
+
+w.position.set(
+Math.sin(a)*3.95,
+2.3,
+Math.cos(a)*3.95
+);
+
+w.lookAt(
+g.position.x,
+2.3,
+g.position.z
+);
+
+g.add(w);
+
+}
+
+
+/* laboratory light */
+
+const light=
+new THREE.PointLight(
+0x8bdcff,
+2,
+18
+);
+
+light.position.y=4;
+
+g.add(light);
+
+}
+
+
+else if(type==="solar"){
+
+for(let i=0;i<3;i++){
+
+const panel=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+3.2,.12,2
+),
+buildingSolar
+);
+
+panel.position.set(
+(i-1)*3.5,
+1.8,
+0
+);
+
+panel.rotation.x=-.15;
+
+panel.castShadow=true;
+
+g.add(panel);
+
+
+for(let j=0;j<5;j++){
+
+const line=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+.025,.02,1.85
+),
+buildingWhite
+);
+
+line.position.set(
+(i-1)*3.5-.9+j*.45,
+1.88,
+0
+);
+
+g.add(line);
+
+}
+
+}
+
+}
+
+
+else if(type==="storage"){
+
+const container=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+5,2.6,3.2
+),
+buildingWhite
+);
+
+container.position.y=1.3;
+
+container.castShadow=true;
+
+g.add(container);
+
+
+for(let i=-1;i<=1;i++){
+
+const stripe=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+.18,2.3,.05
+),
+buildingDark
+);
+
+stripe.position.set(
+i*1.4,
+1.3,
+-1.63
+);
+
+g.add(stripe);
+
+}
+
+}
+
+
+else if(type==="tower"){
+
+const pole=
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+.14,.22,9,12
+),
+buildingDark
+);
+
+pole.position.y=4.5;
+
+pole.castShadow=true;
+
+g.add(pole);
+
+
+const dish=
+new THREE.Mesh(
+new THREE.CylinderGeometry(
+2,.35,.45,24
+),
+buildingWhite
+);
+
+dish.position.y=8.3;
+
+dish.rotation.x=-.5;
+
+g.add(dish);
+
+
+const light=
+new THREE.PointLight(
+0x5ecaff,
+2,
+20
+);
+
+light.position.y=8;
+
+g.add(light);
+
+}
+
+
+else if(type==="research"){
+
+const module=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+5,2.8,3.8
+),
+buildingWhite
+);
+
+module.position.y=1.4;
+
+module.castShadow=true;
+
+g.add(module);
+
+
+const roof=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+4,1.1,3
+),
+buildingGlass
+);
+
+roof.position.y=3;
+
+g.add(roof);
+
+
+for(let i=0;i<3;i++){
+
+const light=
+new THREE.Mesh(
+new THREE.BoxGeometry(
+.7,.7,.08
+),
+new THREE.MeshBasicMaterial({
+color:0x63d9ff
+})
+);
+
+light.position.set(
+-1.3+i*1.3,
+1.7,
+-1.94
+);
+
+g.add(light);
+
+}
+
+}
+
+
+buildings.push({
+type,
+group:g
+});
+
+}
+
+
+/* =========================================================
+   RESOURCE COLLECTION
+========================================================= */
+
+function collectNearest(){
+
+let nearest=null;
+let distance=999;
+
+for(const n of resourceNodes){
+
+if(!n.active)
+continue;
+
+const d=
+Math.hypot(
+rover.position.x-n.group.position.x,
+rover.position.z-n.group.position.z
+);
+
+if(d<distance){
+
+distance=d;
+nearest=n;
+
+}
+
+}
+
+
+if(!nearest||distance>6){
+
+/* Check laboratory */
+
+let lab=null;
+let ld=999;
+
+for(const b of buildings){
+
+if(b.type!=="lab")
+continue;
+
+const d=
+Math.hypot(
+rover.position.x-b.group.position.x,
+rover.position.z-b.group.position.z
+);
+
+if(d<ld){
+ld=d;
+lab=b;
+}
+
+}
+
+if(lab&&ld<7){
+
+researchSamples();
+
+}else{
+
+toast(
+"NO TARGET IN RANGE",
+"Move closer to a mineral deposit or laboratory"
+);
+
+}
+
+return;
+
+}
+
+
+const gain=
+Math.min(
+nearest.amount,
+3
+);
+
+resources[
+nearest.type
+]+=gain;
+
+nearest.amount-=gain;
+
+resources.samples++;
+
+nearest.group.scale.multiplyScalar(
+.75
+);
+
+xp+=
+nearest.type==="rare"
+?100
+:40;
+
+
+toast(
+nearest.name,
+"+"+gain+" kg collected"
+);
+
+
+if(nearest.amount<=0){
+
+nearest.active=false;
+
+scene.remove(
+nearest.group
+);
+
+}
+
+updateUI();
+
+}
+
+
+/* =========================================================
+   RESEARCH
+========================================================= */
+
+let xp=0;
+
+function researchSamples(){
+
+if(resources.samples<=0){
+
+toast(
+"LAB READY",
+"Collect rock samples before beginning research"
+);
+
+return;
+
+}
+
+
+const solarCount=
+buildings.filter(
+b=>b.type==="solar"
+).length;
+
+const labCount=
+buildings.filter(
+b=>b.type==="lab"
+).length;
+
+const power=
+solarCount*8;
+
+if(power<labCount*5){
+
+toast(
+"INSUFFICIENT POWER",
+"Build more solar arrays"
+);
+
+return;
+
+}
+
+
+resources.samples--;
+
+xp+=250;
+
+toast(
+"RESEARCH COMPLETE",
+"+250 SCIENCE XP // Martian mineral data processed"
+);
+
+updateUI();
+
+}
+
+
+/* =========================================================
+   BUILD SYSTEM
+========================================================= */
+
+function startBuild(){
+
+buildMode=!buildMode;
+
+document.getElementById(
+"buildMode"
+).style.display=
+buildMode
+?"block"
+:"none";
+
+if(!buildMode){
+
+removeGhost();
+
+return;
+
+}
+
+selectedBuild="lab";
+
+createGhost(
+selectedBuild
+);
+
+toast(
+"CONSTRUCTION MODE",
+"Press 1–5 to select a structure"
+);
+
+}
+
+
+function createGhost(type){
+
+removeGhost();
+
+ghost=
+new THREE.Group();
+
+ghost.userData.type=type;
+
+scene.add(ghost);
+
+
+/* simplified hologram */
+
+let geo;
+
+if(type==="lab")
+geo=new THREE.CylinderGeometry(4.2,4.2,3.8,24);
+
+if(type==="solar")
+geo=new THREE.BoxGeometry(10,.15,2.5);
+
+if(type==="storage")
+geo=new THREE.BoxGeometry(5,2.6,3.2);
+
+if(type==="tower")
+geo=new THREE.CylinderGeometry(.25,.25,9,12);
+
+if(type==="research")
+geo=new THREE.BoxGeometry(5,2.8,3.8);
+
+
+const mesh=
+new THREE.Mesh(
+geo,
+new THREE.MeshBasicMaterial({
+color:0x5dff98,
+transparent:true,
+opacity:.35,
+wireframe:true
+})
+);
+
+if(type==="lab")
+mesh.position.y=2;
+
+if(type==="solar")
+mesh.position.y=1.8;
+
+if(type==="storage")
+mesh.position.y=1.3;
+
+if(type==="tower")
+mesh.position.y=4.5;
+
+if(type==="research")
+mesh.position.y=1.4;
+
+ghost.add(mesh);
+
+}
+
+
+/* =========================================================
+   MOUSE RAYCAST BUILDING
+========================================================= */
+
+const raycaster=
+new THREE.Raycaster();
+
+const mouse=
+new THREE.Vector2(
+0,0
+);
+
+
+function updateGhost(){
+
+if(!buildMode||!ghost)
+return;
+
+raycaster.setFromCamera(
+mouse,
+camera
+);
+
+const hits=
+raycaster.intersectObject(
+terrain
+);
+
+if(!hits.length)
+return;
+
+const p=
+hits[0].point;
+
+ghost.position.set(
+Math.round(p.x/2)*2,
+heightAt(
+Math.round(p.x/2)*2,
+Math.round(p.z/2)*2
+),
+Math.round(p.z/2)*2
+);
+
+
+/* don't build directly under rover */
+
+const d=
+Math.hypot(
+ghost.position.x-rover.position.x,
+ghost.position.z-rover.position.z
+);
+
+const valid=d>7;
+
+ghost.children[0].material.color.set(
+valid
+?0x55ff91
+:0xff4444
+);
+
+}
+
+
+renderer.domElement.addEventListener(
+"mousemove",
+updateGhost
+);
+
+
+/* =========================================================
+   BUILD
+========================================================= */
+
+function buildSelected(){
+
+if(!buildMode||!ghost)
+return;
+
+const p=
+ghost.position;
+
+const type=
+selectedBuild;
+
+const cost=
+costs[type];
+
+
+for(const resource in cost){
+
+if(resources[resource]<cost[resource]){
+
+toast(
+"CONSTRUCTION BLOCKED",
+"Insufficient "+resource
+.toUpperCase()
+);
+
+return;
+
+}
+
+}
+
+
+/* distance */
+
+if(
+Math.hypot(
+p.x-rover.position.x,
+p.z-rover.position.z
+)<7
+){
+
+toast(
+"TOO CLOSE",
+"Move the rover away from the construction site"
+);
+
+return;
+
+}
+
+
+/* spend */
+
+for(const resource in cost){
+
+resources[resource]-=
+cost[resource];
+
+}
+
+
+makeBuilding(
+type,
+p.clone()
+);
+
+toast(
+"CONSTRUCTION COMPLETE",
+type.toUpperCase()+" established"
+);
+
+updateUI();
+
+}
+
+
+function removeGhost(){
+
+if(ghost){
+
+scene.remove(
+ghost
+);
+
+ghost=null;
+
+}
+
+}
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+const keys={};
+
+document.addEventListener(
+"keydown",
+e=>{
+
+keys[e.code]=true;
+
+if(e.code==="KeyE"&&started)
+collectNearest();
+
+if(e.code==="KeyB"&&started)
+startBuild();
+
+if(buildMode){
+
+if(e.code==="Digit1"){
+selectedBuild="lab";
+createGhost("lab");
+}
+
+if(e.code==="Digit2"){
+selectedBuild="solar";
+createGhost("solar");
+}
+
+if(e.code==="Digit3"){
+selectedBuild="storage";
+createGhost("storage");
+}
+
+if(e.code==="Digit4"){
+selectedBuild="tower";
+createGhost("tower");
+}
+
+if(e.code==="Digit5"){
+selectedBuild="research";
+createGhost("research");
+}
+
+}
+
+if(e.code==="Escape"&&buildMode){
+
+buildMode=false;
+removeGhost();
+
+document.getElementById(
+"buildMode"
+).style.display="none";
+
+}
+
+}
+);
+
+document.addEventListener(
+"keyup",
+e=>{
+keys[e.code]=false;
+}
+);
+
+
+/* =========================================================
+   MOUSE LOOK
+========================================================= */
+
+let locked=false;
+
+renderer.domElement.addEventListener(
+"click",
+()=>{
+
+if(buildMode){
+
+buildSelected();
+
+return;
+
+}
+
+if(started&&!locked){
+
+renderer.domElement
+.requestPointerLock();
+
+}
+
+}
+);
+
+
+document.addEventListener(
+"pointerlockchange",
+()=>{
+
+locked=
+document.pointerLockElement===
+renderer.domElement;
+
+}
+);
+
+
+let yaw=0;
+let pitch=.18;
+
+document.addEventListener(
+"mousemove",
+e=>{
+
+if(!locked)
+return;
+
+yaw-=e.movementX*.0022;
+
+pitch+=e.movementY*.002;
+
+pitch=
+THREE.MathUtils.clamp(
+pitch,
+-.15,
+.65
+);
+
+}
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+let started=false;
+
+document.getElementById(
+"launch"
+).onclick=()=>{
+
+document.getElementById(
+"start"
+).style.display="none";
+
+started=true;
+
+renderer.domElement
+.requestPointerLock();
+
+toast(
+"EXPEDITION STARTED",
+"Locate mineral deposits and establish your first laboratory"
+);
+
+};
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function toast(
+title,
+text
+){
+
+const t=
+document.getElementById(
+"toast"
+);
+
+t.querySelector("b").textContent=
+title;
+
+t.querySelector("span").textContent=
+text;
+
+t.style.opacity=1;
+
+clearTimeout(
+toast.timer
+);
+
+toast.timer=
+setTimeout(
+()=>{
+t.style.opacity=0;
+},
+3000
+);
+
+}
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateUI(){
+
+document.getElementById(
+"iron"
+).textContent=
+resources.iron+" kg";
+
+document.getElementById(
+"basalt"
+).textContent=
+resources.basalt+" kg";
+
+document.getElementById(
+"ice"
+).textContent=
+resources.ice+" kg";
+
+document.getElementById(
+"rare"
+).textContent=
+resources.rare+" kg";
+
+document.getElementById(
+"samples"
+).textContent=
+resources.samples;
+
+const total=
+resources.iron+
+resources.basalt+
+resources.rare;
+
+document.getElementById(
+"mineralGoal"
+).textContent=
+Math.min(total,20)+" / 20";
+
+document.getElementById(
+"mineralBar"
+).style.width=
+Math.min(
+total/20*100,
+100
+)+"%";
+
+
+const labs=
+buildings.filter(
+b=>b.type==="lab"
+).length;
+
+document.getElementById(
+"labGoal"
+).textContent=
+Math.min(labs,1)+" / 1";
+
+document.getElementById(
+"labBar"
+).style.width=
+Math.min(
+labs*100,
+100
+)+"%";
+
+
+document.getElementById(
+"science"
+).textContent=
+xp+" XP";
+
+
+const solarCount=
+buildings.filter(
+b=>b.type==="solar"
+).length;
+
+const power=
+solarCount*8;
+
+document.getElementById(
+"power"
+).textContent=
+power+" kW";
+
+
+/* Mission completion */
+
+if(total>=20&&labs>=1){
+
+document.getElementById(
+"final"
+).textContent=
+"SCIENCE XP: "+
+xp+
+"  •  BASE POWER: "+
+power+
+" kW  •  SOLAR ARRAYS: "+
+solarCount;
+
+document.getElementById(
+"complete"
+).style.display="flex";
+
+}
+
+}
+
+
+/* =========================================================
+   CAMERA / ROVER
+========================================================= */
+
+let speed=0;
+let rotation=0;
+
+const clock=
+new THREE.Clock();
+
+let time=0;
+
+
+function animate(){
+
+requestAnimationFrame(
+animate
+);
+
+const dt=
+Math.min(
+clock.getDelta(),
+.05
+);
+
+time+=dt;
+
+
+/* dust movement */
+
+dust.rotation.y+=
+dt*.003;
+
+
+if(started&&!buildMode){
+
+const forward=
+(
+keys.KeyW||
+keys.ArrowUp
+?1:0
+)
+-
+(
+keys.KeyS||
+keys.ArrowDown
+?1:0
+);
+
+const steer=
+(
+keys.KeyD||
+keys.ArrowRight
+?1:0
+)
+-
+(
+keys.KeyA||
+keys.ArrowLeft
+?1:0
+);
+
+
+const boost=
+keys.ShiftLeft||
+keys.ShiftRight;
+
+
+const maxSpeed=
+boost?11:6;
+
+
+if(forward){
+
+speed+=
+forward*dt*
+(boost?9:5.5);
+
+speed=
+THREE.MathUtils.clamp(
+speed,
+-maxSpeed*.45,
+maxSpeed
+);
+
+}else{
+
+speed*=
+Math.pow(.07,dt);
+
+}
+
+
+if(keys.Space){
+
+speed*=
+Math.pow(.0001,dt);
+
+}
+
+
+rotation+=
+steer*
+dt*
+1.5*
+(
+Math.abs(speed)>.1
+?Math.sign(speed)
+:1
+);
+
+
+rover.position.x+=
+Math.sin(rotation)*
+speed*dt;
+
+rover.position.z+=
+Math.cos(rotation)*
+speed*dt;
+
+
+rover.position.x=
+THREE.MathUtils.clamp(
+rover.position.x,
+-340,340
+);
+
+rover.position.z=
+THREE.MathUtils.clamp(
+rover.position.z,
+-340,340
+);
+
+
+const y=
+heightAt(
+rover.position.x,
+rover.position.z
+);
+
+rover.position.y=y;
+
+rover.rotation.y=
+rotation;
+
+rover.rotation.z=
+Math.sin(time*4)*
+Math.min(
+.035,
+Math.abs(speed)*.006
+);
+
+
+/* wheel animation */
+
+for(const w of wheels){
+
+w.rotation.x+=
+speed*dt*1.8;
+
+}
+
+
+/* camera */
+
+const distance=10;
+
+const cx=
+rover.position.x+
+Math.sin(yaw)*
+Math.cos(pitch)*
+distance;
+
+const cz=
+rover.position.z+
+Math.cos(yaw)*
+Math.cos(pitch)*
+distance;
+
+const cy=
+y+4.8+pitch*4;
+
+
+camera.position.lerp(
+new THREE.Vector3(
+cx,cy,cz
+),
+1-Math.pow(.001,dt)
+);
+
+camera.lookAt(
+rover.position.x,
+y+1.7,
+rover.position.z
+);
+
+}
+
+
+/* Ghost always follows center */
+
+if(buildMode)
+updateGhost();
+
+
+/* Resource markers */
+
+for(const n of resourceNodes){
+
+if(!n.active)
+continue;
+
+n.group.rotation.y+=
+dt*.12;
+
+const beacon=
+n.group.children[
+n.group.children.length-1
+];
+
+beacon.position.y=
+2.4+
+Math.sin(time*3)*.25;
+
+}
+
+
+/* Building lights */
+
+for(const b of buildings){
+
+if(b.type==="lab"){
+
+b.group.rotation.y+=
+0;
+
+}
+
+}
+
+
+renderer.render(
+scene,
+camera
+);
+
+}
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+rover.position.set(
+0,
+heightAt(0,0),
+0
+);
+
+camera.position.set(
+0,6,11
+);
+
+camera.lookAt(
+0,1,0
+);
+
+updateUI();
+
+animate();
+
+
+/* =========================================================
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+"resize",
+()=>{
+
+camera.aspect=
+innerWidth/innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(
+innerWidth,
+innerHeight
+);
+
+}
+);
+
+</script>
+
+</body>
+</html>
